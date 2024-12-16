@@ -21,7 +21,7 @@ namespace Presentation.Controllers
             _userService = userService;
         }
 
-        [HttpGet("{login:string}")]
+        [HttpGet("{login}")]
         public async Task<ActionResult<UserDto>> GetUser(string login)
         {
             return await _userService.GetUserAsync(login);
@@ -40,7 +40,7 @@ namespace Presentation.Controllers
             return userDto;
         }
 
-        [HttpDelete("{login:string}")]
+        [HttpDelete("{login}")]
         public async Task DeleteUser(string login)
         {
             await _userService.DeleteUserAsync(login);

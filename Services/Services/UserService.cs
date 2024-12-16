@@ -36,7 +36,7 @@ namespace Services.Services
         public async Task<List<UserDto>> GetUsersAsync()
         {
             var users = await _mapper.ProjectTo<UserDto>(_dbContext.Users).ToListAsync();
-            if (users == null)
+            if (users.Count == 0)
             {
                 throw new Exception("Список пользователей пуст.");
             }

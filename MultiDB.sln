@@ -7,13 +7,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{25A3EA47-3AB0-49CA-9DE8-BBA3301CB455}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence", "Persistence\Persistence.csproj", "{CF42CD8E-EBA2-48FC-AD5E-611955AA407C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence", "Persistence\Persistence.csproj", "{CF42CD8E-EBA2-48FC-AD5E-611955AA407C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{470CFDB2-D454-4F20-B6F0-B1E79D96F88B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{470CFDB2-D454-4F20-B6F0-B1E79D96F88B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Contracts.csproj", "{847614B3-D643-47E5-813E-9583CA5F4346}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts", "Contracts\Contracts.csproj", "{847614B3-D643-47E5-813E-9583CA5F4346}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Presentation\Presentation.csproj", "{B6190DDF-1F65-4F43-BD63-9D0B6DC7F64D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Presentation", "Presentation\Presentation.csproj", "{B6190DDF-1F65-4F43-BD63-9D0B6DC7F64D}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{BE61F833-059D-44A4-9B1F-507126204D65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{B6190DDF-1F65-4F43-BD63-9D0B6DC7F64D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6190DDF-1F65-4F43-BD63-9D0B6DC7F64D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6190DDF-1F65-4F43-BD63-9D0B6DC7F64D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE61F833-059D-44A4-9B1F-507126204D65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE61F833-059D-44A4-9B1F-507126204D65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE61F833-059D-44A4-9B1F-507126204D65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE61F833-059D-44A4-9B1F-507126204D65}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

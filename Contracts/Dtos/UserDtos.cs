@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 namespace Contracts.Dtos
 {
     public record UserDtoForCreate(string Login, string Password); 
-    public record UserDto(string Login);
+    public record UserDto(Guid Id, string Login);
 }

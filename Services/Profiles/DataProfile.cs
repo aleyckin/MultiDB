@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 
 namespace Services.Profiles
 {
-    public class UserProfile : Profile
+    class DataProfile : Profile
     {
-        public UserProfile() 
+        public DataProfile() 
         {
-            CreateMap<User, UserDto>().ReverseMap();
-            CreateMap<UserDtoForCreate, User>();
+            CreateMap<Data, DataDto>().ReverseMap();
+            CreateMap<Data, DataDtoForCreate>().ReverseMap();
+            CreateMap<Data, DataDtoForList>().ReverseMap();
         }
     }
 }

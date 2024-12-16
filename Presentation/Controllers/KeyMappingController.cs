@@ -20,21 +20,27 @@ namespace Presentation.Controllers
         public KeyMappingController(ICoordinator coordinator) { _coordinator = coordinator; }
 
         [HttpGet("{userId:guid}/{dataId:guid}")]
-        public async Task<ActionResult<DataDto>> GetData(Guid userId, Guid dataId)
+        public async Task<ActionResult<DataDtoForList>> GetData(Guid userId, Guid dataId)
         {
             return await _coordinator.GetDataAsync(userId, dataId);
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<DataDto>>> GetAllData()
+        public async Task<ActionResult<List<DataDtoForList>>> GetAllData()
         {
             return await _coordinator.GetAllDataAsync();
         }
 
-        [HttpPost("{userId:guid}")]
-        public async Task<ActionResult<DataDto>> CreateData(Guid userId, [FromBody] DataDto dataDto)
+        [HttpGet("{userId:guid}")]
+        public async Task<ActionResult<List<DataDto>>> GetAllDataForUser(Guid userId)
         {
-            return await _coordinator.InsertDataAsync(userId, dataDto);
+            return await _coordinator.GetAllDataForUserAsync(userId);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<DataDtoForCreate>> CreateData([FromBody] DataDtoForCreate dataDto)
+        {
+            return await _coordinator.InsertDataAsync(dataDto);
         }
 
         [HttpDelete("{userId:guid}/{dataId:guid}")]
@@ -48,5 +54,6 @@ namespace Presentation.Controllers
         {
             await _coordinator.RemoveAllDataAsync();
         }
+
     }
 }

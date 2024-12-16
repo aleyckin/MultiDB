@@ -13,20 +13,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<KeyMappingDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("KeyMappingDb")));
 
-builder.Services.AddDbContext<ShardDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("ShardDb1")));
+builder.Services.AddSingleton<IShardDbContextFactory, ShardDbContextFactory>();
+builder.Services.AddSingleton<IShardConfiguration, ShardConfiguration>();
 
-builder.Services.AddDbContext<ShardDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("ShardDb2")));
-
-builder.Services.AddSingleton<List<string>>(sp =>
-    new List<string>
-    {
-        builder.Configuration.GetConnectionString("ShardDb1"),
-        builder.Configuration.GetConnectionString("ShardDb2")
-    });
-
-builder.Services.AddServiceDependencies();
+builder.Services.AddServiceDependencies(builder.Configuration);
 
 var app = builder.Build();
 
@@ -37,14 +27,18 @@ using (var scope = app.Services.CreateScope())
     var keyMappingDbContext = services.GetRequiredService<KeyMappingDbContext>();
     keyMappingDbContext.Database.Migrate();
 
-    var shardDbContexts = services.GetServices<ShardDbContext>();
-    foreach (var shardDbContext in shardDbContexts)
+    var shardConfiguration = services.GetRequiredService<IShardConfiguration>();
+    var shardDbContextFactory = services.GetRequiredService<IShardDbContextFactory>();
+
+    foreach (var connectionString in shardConfiguration.GetShardConnectionStrings())
     {
-        shardDbContext.Database.Migrate();
+        using (var shardDbContext = shardDbContextFactory.Create(connectionString))
+        {
+            shardDbContext.Database.Migrate();
+        }
     }
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -52,9 +46,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

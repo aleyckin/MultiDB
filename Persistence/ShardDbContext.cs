@@ -10,19 +10,13 @@ namespace Persistence
 {
     public class ShardDbContext : DbContext
     {
-        private readonly string _connectionString;
-
-        public ShardDbContext(DbContextOptions<ShardDbContext> options, string connectionString)
-            : base(options)
-        {
-            _connectionString = connectionString;
-        }
+        public ShardDbContext(DbContextOptions<ShardDbContext> options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql(_connectionString);
+                throw new InvalidOperationException("Options must be configured.");
             }
         }
 

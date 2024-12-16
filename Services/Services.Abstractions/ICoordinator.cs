@@ -9,10 +9,11 @@ namespace Services.Services.Abstractions
 {
     public interface ICoordinator
     {
-        Task<DataDto> GetDataAsync(Guid userId, Guid dataId);
-        Task<DataDto> InsertDataAsync(Guid userId, DataDto dataDto);
+        Task<DataDtoForList> GetDataAsync(Guid userId, Guid dataId);
+        Task<List<DataDto>> GetAllDataForUserAsync(Guid userId);
+        Task<List<DataDtoForList>> GetAllDataAsync();
+        Task<DataDtoForCreate> InsertDataAsync(DataDtoForCreate dataDto);
         Task RemoveDataAsync(Guid userId, Guid dataId);
-        Task<List<DataDto>> GetAllDataAsync();
         Task RemoveAllDataAsync();
     }
 }

@@ -6,5 +6,7 @@ using System.Threading.Tasks;
 
 namespace Contracts.Dtos
 {
-    public record DataDto(string Description);
+    public record DataDto(string Description, DateTime CreatedDate);
+    public record DataDtoForCreate(string Description, Guid userId);
+    public record DataDtoForList(Guid userId, string Description, DateTime CreatedDate, string ShardName);
 }

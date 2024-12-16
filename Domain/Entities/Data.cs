@@ -11,5 +11,6 @@ namespace Domain.Entities
         public Guid Id { get; set; }
         public string Description { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+        public Guid UserId { get; set; } 
     }
 }

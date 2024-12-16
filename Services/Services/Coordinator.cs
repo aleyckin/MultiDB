@@ -2,6 +2,7 @@
 using Contracts.Dtos;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Persistence;
 using Services.Services.Abstractions;
 using System;
@@ -17,14 +18,14 @@ namespace Services.Services
         private readonly KeyMappingDbContext _dbContext;
         private readonly List<string> _shardConnectionStrings;
         private readonly IMapper _mapper;
-        private readonly IDbContextFactory<ShardDbContext> _dbContextFactory;
+        private readonly IShardDbContextFactory _shardDbContextFactory;
 
-        public Coordinator(KeyMappingDbContext dbContext, List<string> shardConnectionStrings, IMapper mapper, IDbContextFactory<ShardDbContext> dbContextFactory) 
+        public Coordinator(KeyMappingDbContext dbContext, List<string> shardConnectionStrings, IMapper mapper, IShardDbContextFactory shardDbContextFactory) 
         { 
             _dbContext = dbContext;
             _shardConnectionStrings = shardConnectionStrings;
             _mapper = mapper;
-            _dbContextFactory = dbContextFactory;
+            _shardDbContextFactory = shardDbContextFactory;
         }
 
         public async Task<string> GetOrCreateKeyForUserAsync(Guid userId)
@@ -42,7 +43,7 @@ namespace Services.Services
             return newKey;
         }
 
-        public async Task<DataDto> GetDataAsync(Guid userId, Guid dataId)
+        public async Task<DataDtoForList> GetDataAsync(Guid userId, Guid dataId)
         {
             string key = await GetOrCreateKeyForUserAsync(userId);
             int shardIndex = GetShardIndex(key);
@@ -50,9 +51,9 @@ namespace Services.Services
             return await GetDataFromShardAsync(shardDbContext, dataId);
         }
 
-        public async Task<DataDto> InsertDataAsync(Guid userId, DataDto dataDto)
+        public async Task<DataDtoForCreate> InsertDataAsync(DataDtoForCreate dataDto)
         {
-            string key = await GetOrCreateKeyForUserAsync(userId);
+            string key = await GetOrCreateKeyForUserAsync(dataDto.userId);
             int shardIndex = GetShardIndex(key);
             var shardDbContext = CreateShardDbContext(_shardConnectionStrings[shardIndex]);
             return await InsertDataInShardAsync(shardDbContext, dataDto);
@@ -66,12 +67,13 @@ namespace Services.Services
             await RemoveDataFromShardAsync(shardDbContext, dataId);
         }
 
-        public async Task<List<DataDto>> GetAllDataAsync()
+        public async Task<List<DataDtoForList>> GetAllDataAsync()
         {
-            var tasks = _shardConnectionStrings.Select(async connectionString =>
+            var tasks = _shardConnectionStrings.Select(async (connectionString, index) =>
             {
                 var shardDbContext = CreateShardDbContext(connectionString);
-                return await GetAllDataFromShardAsync(shardDbContext);
+                string shardName = $"Shard-{index + 1}";
+                return await GetAllDataFromShardAsync(shardDbContext, shardName);
             });
 
             var dataFromAllShards = await Task.WhenAll(tasks);
@@ -94,14 +96,14 @@ namespace Services.Services
             return Math.Abs(key.GetHashCode()) % _shardConnectionStrings.Count;
         }
 
-        private async Task<DataDto> GetDataFromShardAsync(ShardDbContext shardDbContext, Guid dataId)
+        private async Task<DataDtoForList> GetDataFromShardAsync(ShardDbContext shardDbContext, Guid dataId)
         {
             var data = await shardDbContext.Data.FirstOrDefaultAsync(x => x.Id == dataId);
             if (data == null)
             {
                 throw new Exception("Данных с этим id не найдено.");
             }
-            return _mapper.Map<DataDto>(data);
+            return _mapper.Map<DataDtoForList>(data);
         }
 
         private async Task RemoveDataFromShardAsync(ShardDbContext shardDbContext, Guid dataId)
@@ -115,28 +117,29 @@ namespace Services.Services
             await shardDbContext.SaveChangesAsync();
         }
 
-        private async Task<List<DataDto>> GetAllDataFromShardAsync(ShardDbContext shardDbContext)
+        private async Task<List<DataDtoForList>> GetAllDataFromShardAsync(ShardDbContext shardDbContext, string shardName)
         {
-            var data = await _mapper.ProjectTo<DataDto>(shardDbContext.Data).ToListAsync();
-            if (data == null)
-            {
-                throw new Exception("Данных в шарде не найдено.");
-            }
-            return data;
+            var data = await shardDbContext.Data.ToListAsync();
+            var updatedData = data.Select(d => new DataDtoForList(d.UserId, d.Description, d.CreatedDate, shardName)).ToList();
+            return updatedData;
+        }
+
+        public async Task<List<DataDto>> GetAllDataForUserAsync(Guid userId)
+        {
+            string key = await GetOrCreateKeyForUserAsync(userId);
+            int shardIndex = GetShardIndex(key);
+            var shardDbContext = CreateShardDbContext(_shardConnectionStrings[shardIndex]);
+            return await _mapper.ProjectTo<DataDto>(shardDbContext.Data.Where(x => x.UserId == userId)).ToListAsync();
         }
 
         private async Task RemoveAllDataFromShardAsync(ShardDbContext shardDbContext)
         {
             var data = await shardDbContext.Data.ToListAsync();
-            if (data == null)
-            {
-                throw new Exception("Данных в шарде не найдено.");
-            }
-            shardDbContext.Remove(data);
+            shardDbContext.RemoveRange(data);
             await shardDbContext.SaveChangesAsync();
         }
 
-        private async Task<DataDto> InsertDataInShardAsync(ShardDbContext shardDbContext, DataDto dataDto)
+        private async Task<DataDtoForCreate> InsertDataInShardAsync(ShardDbContext shardDbContext, DataDtoForCreate dataDto)
         {
             var data = _mapper.Map<Data>(dataDto);
             shardDbContext.Add(data);
@@ -146,11 +149,7 @@ namespace Services.Services
 
         private ShardDbContext CreateShardDbContext(string connectionString)
         {
-            var options = new DbContextOptionsBuilder<ShardDbContext>()
-                .UseNpgsql(connectionString)
-                .Options;
-
-            return new ShardDbContext(options, connectionString);
+            return _shardDbContextFactory.Create(connectionString);
         }
     }
 }
