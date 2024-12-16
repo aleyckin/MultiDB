@@ -21,3 +21,5 @@ obj/Debug/net8.0
 /Web/bin/Debug/net8.0
 /.gitignore
 /.gitignore
+/bin/Debug
+/obj
