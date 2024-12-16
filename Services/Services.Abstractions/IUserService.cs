@@ -12,6 +12,7 @@ namespace Services.Services.Abstractions
         Task<UserDto> GetUserAsync(string login);
         Task<List<UserDto>> GetUsersAsync();
         Task<UserDto> CreateUserAsync(UserDtoForCreate userDto);
+        Task<string> ValidateUserCredentials(UserDtoForCreate userDtoForCreate);
         Task DeleteUserAsync(string login);
     }
 }
