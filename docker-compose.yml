@@ -6,6 +6,21 @@ services:
       dockerfile: Web/Dockerfile
     depends_on:
       - keymapping-db
+    ports:
+      - "5000:5000"
+    environment:
+        ASPNETCORE_URLS: "http://0.0.0.0:5000"
+
+  frontend:
+    image: frontend
+    build:
+      context: ../MultiDb_Frontend/multidb-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - web
+
   keymapping-db:
     image: postgres:15
     container_name: keymapping-db

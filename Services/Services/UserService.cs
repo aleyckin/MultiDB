@@ -75,13 +75,13 @@ namespace Services.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public string GenerateJwtToken(UserDtoForCreate userDtoForCreate)
+        public string GenerateJwtToken(User user)
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, userDtoForCreate.Login),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Login),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("userId", userDtoForCreate.Login.ToString()),
+                new Claim("userId", user.Id.ToString()),
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -104,7 +104,7 @@ namespace Services.Services
             {
                 throw new Exception("Неправильный логин или пароль.");
             }
-            return GenerateJwtToken(userDtoForCreate);
+            return GenerateJwtToken(userInDb);
         }
     }
 }

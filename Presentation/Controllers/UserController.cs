@@ -46,7 +46,7 @@ namespace Presentation.Controllers
             await _userService.DeleteUserAsync(login);
         }
 
-        [HttpPost("/login")]
+        [HttpPost("login")]
         public async Task<ActionResult<string>> Login([FromBody] UserDtoForCreate userDtoForCreate)
         {
             return await _userService.ValidateUserCredentials(userDtoForCreate);

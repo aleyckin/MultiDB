@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Persistence;
 using Services;
+using System.Net;
 using System.Text;
 using Web.Middlewares;
 
@@ -47,9 +48,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowVueApp",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials();
+        });
+});
 
 var app = builder.Build();
-
 ApplyMigrations(app);
 
 if (app.Environment.IsDevelopment())
@@ -62,6 +73,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseCors("AllowVueApp");
 app.Run();
 
 void ApplyMigrations(WebApplication app)

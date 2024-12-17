@@ -8,6 +8,7 @@ using Services.Services.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -93,7 +94,12 @@ namespace Services.Services
 
         public int GetShardIndex(string key)
         {
-            return Math.Abs(key.GetHashCode()) % _shardConnectionStrings.Count;
+            using (var sha256 = SHA256.Create())
+            {
+                byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(key));
+                int hashCode = BitConverter.ToInt32(hashBytes, 0);
+                return Math.Abs(hashCode) % _shardConnectionStrings.Count;
+            }
         }
 
         private async Task<DataDtoForList> GetDataFromShardAsync(ShardDbContext shardDbContext, Guid dataId)
